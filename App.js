@@ -18,6 +18,8 @@ import {
 } from "firebase/auth";
 import { initializeApp } from "firebase/app";
 import { firebaseConfig } from "./firebase-config";
+import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
+import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
 
 const uri = "https://ak.picdn.net/shutterstock/videos/1060308725/thumb/1.jpg";
 const profilePicture = "https://randomuser.me/api/portraits/men/34.jpg";
@@ -33,6 +35,20 @@ function LoginScreen() {
 
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
+
+  const app = initializeApp(firebaseConfig);
+  //const auth = getAuth(app);
+  const auth = initializeAuth(app, {
+    persistence: getReactNativePersistence(ReactNativeAsyncStorage)
+  });
+  
+  const handleCreateAccount = () => {
+    createUserWithEmailAndPassword(auth, email, password).then(() => {
+      console.log('Account created');
+      const user = userCredential.user;
+      console.log(user);
+    }).catch(error => {console.log(error);})
+  }
 
   return (
     <View style={styles.container}>
@@ -86,6 +102,7 @@ function LoginScreen() {
                 E-mail
               </Text>
               <TextInput
+                onChangeText={(text) => setEmail(text)}
                 style={styles.input}
                 placeholder="tucorreo@dominio.com"
               />
@@ -95,6 +112,7 @@ function LoginScreen() {
                 Password
               </Text>
               <TextInput
+                onChangeText={(text) => setPassword(text)}
                 style={styles.input}
                 placeholder="Password"
                 secureTextEntry={true}
